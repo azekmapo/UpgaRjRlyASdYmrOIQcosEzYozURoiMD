@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "winston": "^3.17.0"
+  },
+  "name": "pfe-sockets",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pfe-project-master/socket-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pfe-project-master/socket-server/issues"
+  },
+  "homepage": "https://github.com/pfe-project-master/socket-server#readme",
+  "description": ""
+}

@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedSideEffectImports": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitOverride": false,
+    "exactOptionalPropertyTypes": false,
+    "useUnknownInCatchVariables": false
+  }
+}

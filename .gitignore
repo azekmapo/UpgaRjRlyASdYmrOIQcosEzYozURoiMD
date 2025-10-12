@@ -1,0 +1,69 @@
+# Dependency directories
+node_modules/
+vendor/
+
+# Backend
+backend/vendor/
+backend/node_modules/
+backend/storage/*.key
+backend/storage/app/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/bootstrap/cache/*
+!backend/storage/app/.gitkeep
+!backend/storage/app/public/.gitkeep
+!backend/storage/framework/.gitkeep
+!backend/storage/logs/.gitkeep
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# Notifications Server
+notifications-server/node_modules/
+
+# Database
+*.sql
+*.sqlite
+*.sqlite3
+postgres_data/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+.phpunit.result.cache
+
+# Docker
+docker-compose.override.yml
+
+# Backup files
+backup*.sql
+*.backup
+
+# SSL certificates (don't commit to git)
+nginx/ssl/*.key
+nginx/ssl/*.crt
+nginx/ssl/*.pem
+
+docs

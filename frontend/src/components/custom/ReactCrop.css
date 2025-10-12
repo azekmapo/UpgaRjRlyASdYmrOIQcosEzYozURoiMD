@@ -1,0 +1,134 @@
+.ReactCrop {
+  position: relative;
+  display: inline-block;
+  cursor: crosshair;
+  max-width: 100%;
+  background: #000;
+}
+
+.ReactCrop *,
+.ReactCrop *::before,
+.ReactCrop *::after {
+  box-sizing: border-box;
+}
+
+.ReactCrop__image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+}
+
+.ReactCrop__crop-selection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate3d(0, 0, 0);
+  box-sizing: border-box;
+  cursor: move;
+  box-shadow: 0 0 0 9999em rgba(0, 0, 0, 0.5);
+  touch-action: manipulation;
+}
+
+.ReactCrop__crop-selection:focus {
+  outline: none;
+}
+
+.ReactCrop__drag-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  outline: 1px solid transparent;
+}
+
+.ReactCrop__drag-handle::after {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #ccc;
+  opacity: 0;
+}
+
+.ReactCrop__drag-handle:focus::after {
+  opacity: 1;
+}
+
+.ReactCrop__drag-handle--n {
+  top: -6px;
+  left: 50%;
+  margin-left: -6px;
+  cursor: n-resize;
+}
+
+.ReactCrop__drag-handle--ne {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+
+.ReactCrop__drag-handle--e {
+  top: 50%;
+  right: -6px;
+  margin-top: -6px;
+  cursor: e-resize;
+}
+
+.ReactCrop__drag-handle--se {
+  bottom: -6px;
+  right: -6px;
+  cursor: se-resize;
+}
+
+.ReactCrop__drag-handle--s {
+  bottom: -6px;
+  left: 50%;
+  margin-left: -6px;
+  cursor: s-resize;
+}
+
+.ReactCrop__drag-handle--sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+}
+
+.ReactCrop__drag-handle--w {
+  top: 50%;
+  left: -6px;
+  margin-top: -6px;
+  cursor: w-resize;
+}
+
+.ReactCrop__drag-handle--nw {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+}
+
+/* Circular crop specific styles - FIXED */
+.ReactCrop--circular-crop .ReactCrop__crop-selection {
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999em rgba(0, 0, 0, 0.6);
+}
+
+.ReactCrop--circular-crop .ReactCrop__drag-handle {
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #007bff; /* Changed to blue border only */
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  /* Removed hover transform animation */
+}
+
+/* Removed the hover effect that was causing the handles to move */
+/* .ReactCrop--circular-crop .ReactCrop__drag-handle:hover - DELETED */
+
+/* Removed the orange border pseudo-element */
+/* .ReactCrop--circular-crop .ReactCrop__crop-selection::before - DELETED */
