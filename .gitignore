@@ -21,9 +21,6 @@ backend/bootstrap/cache/*
 frontend/node_modules/
 frontend/dist/
 frontend/build/
-frontend/.env
-frontend/.env.local
-frontend/.env.production
 
 # Notifications Server
 notifications-server/node_modules/
