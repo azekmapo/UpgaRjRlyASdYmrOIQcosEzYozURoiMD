@@ -25,7 +25,8 @@ export default function SignatureManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [userId, setUserId] = useState<string>();
-  const [isResponsable, setIsResponsable] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isJuryPresident, setIsJuryPresident] = useState<boolean>(false);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   useEffect(() => {
@@ -37,21 +38,27 @@ export default function SignatureManager() {
           const userData = JSON.parse(cachedUser);
           setUserId(userData.id);
           
-          // Check if user is a responsible teacher
-          if (userData.role !== "enseignant") {
-            setIsUnauthorized(true);
-            toast.error("Access denied. Only responsible teachers can access signatures.");
+          // Check if user is admin
+          if (userData.role === "admin") {
+            setIsAdmin(true);
             return;
           }
           
-          // Check is_responsable status from user data
-          // This should come from the enseignant profile data
-          const isResp = userData.is_responsable || false;
-          setIsResponsable(isResp);
-          
-          if (!isResp) {
+          // Check if user is a teacher
+          if (userData.role !== "enseignant") {
             setIsUnauthorized(true);
-            toast.error("Access denied. Only responsible teachers can manage signatures.");
+            toast.error("Access denied. Only admin or jury presidents can access signatures.");
+            return;
+          }
+          
+          // Check is_jury_president status from user data
+          const isPresident = userData.is_jury_president || false;
+          setIsJuryPresident(isPresident);
+          
+          // User must be jury president
+          if (!isPresident) {
+            setIsUnauthorized(true);
+            toast.error("Access denied. Only admin or jury presidents can manage signatures.");
           }
         } else {
           throw new Error("No cached user found");
@@ -68,7 +75,7 @@ export default function SignatureManager() {
 
   useEffect(() => {
     const loadSignatures = async () => {
-      if (!userId || !isResponsable) return;
+      if (!userId || (!isAdmin && !isJuryPresident)) return;
 
       try {
         setIsLoading(true);
@@ -77,7 +84,7 @@ export default function SignatureManager() {
       } catch (error) {
         console.error("Error fetching signatures:", error);
         if (error instanceof Error && error.message.includes("403")) {
-          toast.error("Access denied. Only responsible teachers can manage signatures.");
+          toast.error("Access denied. Only admin or jury presidents can manage signatures.");
           setIsUnauthorized(true);
         }
       } finally {
@@ -86,7 +93,7 @@ export default function SignatureManager() {
     };
 
     loadSignatures();
-  }, [userId, isResponsable]);
+  }, [userId, isAdmin, isJuryPresident]);
 
   const handleNewSignature = async (signatureFile: File) => {
     try {
@@ -152,12 +159,12 @@ export default function SignatureManager() {
           <CardContent className="p-8 text-center">
             <div className="space-y-4">
               <div className="text-red-500 text-6xl">🔒</div>
-              <h2 className="text-2xl font-bold">Access Denied</h2>
+              <h2 className="text-2xl font-bold">Accès Refusé</h2>
               <p className="text-muted-foreground">
-                Only responsible teachers (enseignants responsables) can access the signature management feature.
+                Seuls les administrateurs et les présidents de jury peuvent accéder à la gestion des signatures.
               </p>
               <p className="text-sm text-muted-foreground">
-                If you believe this is an error, please contact your administrator.
+                Si vous pensez qu'il s'agit d'une erreur, veuillez contacter votre administrateur.
               </p>
             </div>
           </CardContent>
@@ -185,6 +192,20 @@ export default function SignatureManager() {
 
         <CardContent className="space-y-6">
           <div className="flex flex-col space-y-6">
+            {/* Role badges */}
+            <div className="flex gap-2 mt-4">
+              {isAdmin && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                  Administrateur
+                </span>
+              )}
+              {isJuryPresident && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                  Président de Jury
+                </span>
+              )}
+            </div>
+            
             <Button
               onClick={() => setIsCreateDialogOpen(true)}
               className="ml-auto mt-5"

@@ -6,6 +6,7 @@ export interface User {
   email_verified_at?: string
   profile_picture?: string
   is_responsable?: boolean
+  is_jury_president?: boolean
   created_at: string
   updated_at: string
 }

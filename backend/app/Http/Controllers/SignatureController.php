@@ -3,31 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\Signature;
-use App\Models\Enseignant; 
+use App\Models\Enseignant;
+use App\Models\Jury;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 class SignatureController extends Controller
 {
-    private function authorizeTeacher($teacherId)
+    private function authorizeUser($userId)
     {
-        $teacher = Enseignant::findOrFail($teacherId);
+        $user = User::findOrFail($userId);
         
-        if (!$teacher->is_responsable) {
-            abort(403, 'Only responsible teachers can manage signatures.');
+        $isPresident = Jury::where('id_president', $userId)->exists();
+        $isAdmin = $user->role === 'admin';
+        
+        if (!$isPresident && !$isAdmin) {
+            abort(403, 'Only jury presidents or admins can manage signatures.');
         }
         
-        return $teacher;
+        return $user;
     }
 
-    public function index($teacherId)
+    public function index($userId)
     {
         DB::beginTransaction();
         try {
-            $this->authorizeTeacher($teacherId);
-            $signatures = Signature::where('enseignant_id', $teacherId)->get();
+            $this->authorizeUser($userId);
+            $signatures = Signature::where('user_id', $userId)->get();
             DB::commit();
             return response()->json($signatures, 200);
         } catch (\Exception $e) {
@@ -39,11 +46,11 @@ class SignatureController extends Controller
         }
     }
 
-    public function store(Request $request, $teacherId)
+    public function store(Request $request, $userId)
     {
         DB::beginTransaction();
         try {
-            $this->authorizeTeacher($teacherId);
+            $this->authorizeUser($userId);
 
             $validator = Validator::make($request->all(), [
                 'signature' => 'required|file|mimes:png,jpeg,jpg|max:2048',
@@ -53,13 +60,13 @@ class SignatureController extends Controller
                 return response()->json(['errors' => $validator->errors()], 422);
             }
 
-            $existingSignaturesCount = Signature::where('enseignant_id', $teacherId)->count();
+            $existingSignaturesCount = Signature::where('user_id', $userId)->count();
             $fileExtension = $request->file('signature')->getClientOriginalExtension();
-            $fileName = $teacherId . '-signature-' . ($existingSignaturesCount + 1) . '.' . $fileExtension;
+            $fileName = $userId . '-signature-' . ($existingSignaturesCount + 1) . '.' . $fileExtension;
             $path = $request->file('signature')->storeAs('signatures', $fileName, 'private');
 
             $signature = Signature::create([
-                'enseignant_id' => $teacherId,
+                'user_id' => $userId,
                 'signature_data' => $path,
                 'is_active' => false,
             ]);
@@ -83,7 +90,7 @@ class SignatureController extends Controller
         DB::beginTransaction();
         try {
             $signature = Signature::findOrFail($id);
-            $this->authorizeTeacher($signature->enseignant_id);
+            $this->authorizeUser($signature->user_id);
 
             $validator = Validator::make($request->all(), [
                 'signature' => 'nullable|file|mimes:png,jpeg,jpg|max:2048',
@@ -100,7 +107,7 @@ class SignatureController extends Controller
                 }
 
                 $fileExtension = $request->file('signature')->getClientOriginalExtension();
-                $fileName = $signature->enseignant_id . '-signature-' . (Signature::where('enseignant_id', $signature->enseignant_id)->count() + 1) . '.' . $fileExtension;
+                $fileName = $signature->user_id . '-signature-' . (Signature::where('user_id', $signature->user_id)->count() + 1) . '.' . $fileExtension;
                 $path = $request->file('signature')->storeAs('signatures', $fileName, 'private');
                 $signature->signature_data = $path;
             }
@@ -129,7 +136,7 @@ class SignatureController extends Controller
         DB::beginTransaction();
         try {
             $signature = Signature::findOrFail($id);
-            $this->authorizeTeacher($signature->enseignant_id);
+            $this->authorizeUser($signature->user_id);
             
             if ($signature->signature_data && Storage::disk('private')->exists($signature->signature_data)) {
                 Storage::disk('private')->delete($signature->signature_data);
@@ -147,13 +154,13 @@ class SignatureController extends Controller
         }
     }
 
-    public function activate(Request $request, $teacherId, $signatureId)
+    public function activate(Request $request, $userId, $signatureId)
     {
         DB::beginTransaction();
         try {
-            $this->authorizeTeacher($teacherId);
+            $this->authorizeUser($userId);
 
-            $currentActiveSignature = Signature::where('enseignant_id', $teacherId)->where('is_active', true)->first();
+            $currentActiveSignature = Signature::where('user_id', $userId)->where('is_active', true)->first();
             if ($currentActiveSignature) {
                 $currentActiveSignature->is_active = false;
                 $currentActiveSignature->save();
@@ -179,10 +186,43 @@ class SignatureController extends Controller
 
     public function getSignatureImage($filename)
     {
-        $filePaths = [$filename, 'signatures/' . $filename];
+        try {
+            $filePaths = [$filename, 'signatures/' . $filename];
+            
+            foreach ($filePaths as $filePath) {
+                if (Storage::disk('private')->exists($filePath)) {
+                    // Generate URL for auth-protected route
+                    $url = route('signatures.serve', ['filename' => basename($filePath)]);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'url' => $url,
+                        'expires_at' => null
+                    ], 200);
+                }
+            }
+        
+            return response()->json(['error' => 'Signature not found'], 404);
+        } catch (\Exception $e) {
+            Log::error('Error generating signature URL: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate signature URL'], 500);
+        }
+    }
+    
+    public function getSignatureImageDirect($filename)
+    {
+        // Alternative endpoint for direct image serving (if needed)
+        $filePaths = [
+            $filename,
+            'signatures/' . $filename,
+            'app/private/signatures/' . $filename,
+            storage_path('app/private/signatures/' . $filename)
+        ];
         
         foreach ($filePaths as $filePath) {
+            Log::info('Checking file path: ' . $filePath);
             if (Storage::disk('private')->exists($filePath)) {
+                Log::info('Found file at: ' . $filePath);
                 $fileContents = Storage::disk('private')->get($filePath);
                 $fullPath = Storage::disk('private')->path($filePath);
                 
@@ -194,11 +234,34 @@ class SignatureController extends Controller
 
                 return response($fileContents, 200)
                     ->header('Content-Type', $mimeType)
-                    ->header('Cache-Control', 'public, max-age=86400')
+                    ->header('Cache-Control', 'public, max-age=3600')
                     ->header('Access-Control-Allow-Origin', '*');
             }
         }
-    
+        
+        Log::error('Signature not found for filename: ' . $filename);
         return response()->json(['error' => 'Signature not found'], 404);
+    }
+    
+    public function serveSignature($filename)
+    {
+        try {
+            $filePath = 'signatures/' . $filename;
+            
+            if (!Storage::disk('private')->exists($filePath)) {
+                return response()->json(['error' => 'Signature not found'], 404);
+            }
+            
+            $fullPath = Storage::disk('private')->path($filePath);
+            $mimeType = mime_content_type($fullPath) ?: 'image/png';
+            
+            return response()->file($fullPath, [
+                'Content-Type' => $mimeType,
+                'Cache-Control' => 'private, max-age=3600'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error serving signature: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to serve signature'], 500);
+        }
     }
 }

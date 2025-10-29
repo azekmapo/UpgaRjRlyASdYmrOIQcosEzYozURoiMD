@@ -222,56 +222,52 @@ const PropoResponsableEntrepriseDialog: React.FC<PropoResponsableEntrepriseDialo
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-              <div className="md:col-span-4">
-                <label htmlFor="entreprise" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Nom
-                </label>
-                <input
-                  type="text"
-                  id="entreprise"
-                  value={proposition.entreprise?.name || 'Nom entreprise non disponible'}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                  readOnly
-                />
-              </div>
-              <div className="md:col-span-4">
-                <label htmlFor="denomination" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Dénomination
-                </label>
-                <input
-                  type="text"
-                  id="denomination"
-                  value={proposition.entreprise?.entreprise?.denomination || 'Denomination non disponible'}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                  readOnly
-                />
-              </div>
+            <div className="md:col-span-4">
+              <label htmlFor="entreprise" className="block text-sm font-semibold text-gray-700 mb-2">
+                Nom
+              </label>
+              <input
+                type="text"
+                id="entreprise"
+                value={proposition.entreprise?.name || 'Nom entreprise non disponible'}
+                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
+                readOnly
+              />
+            </div>
+            <div className="md:col-span-4">
+              <label htmlFor="denomination" className="block text-sm font-semibold text-gray-700 mb-2">
+                Dénomination
+              </label>
+              <input
+                type="text"
+                id="denomination"
+                value={proposition.entreprise?.entreprise?.denomination || 'Denomination non disponible'}
+                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
+                readOnly
+              />
+            </div>
 
-              <div className="md:col-span-2">
-                <label htmlFor="option" className="block text-sm font-semibold text-gray-700 mb-2">
-                  L'option
-                </label>
-                <input
-                  type="text"
-                  id="option"
-                  value={proposition.option || 'Non défini'}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                  readOnly
-                />
-              </div>
-            
+            <div className="md:col-span-2">
+              <label htmlFor="option" className="block text-sm font-semibold text-gray-700 mb-2">
+                L'option
+              </label>
+              <input
+                type="text"
+                id="option"
+                value={proposition.option || 'Non défini'}
+                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
+                readOnly
+              />
+            </div>
+
 
             <div>
               <label htmlFor="intitule" className="block text-sm font-semibold text-gray-700 mb-2">
                 L'intitulé du projet
               </label>
-              <input
-                type="text"
-                id="intitule"
-                value={proposition.intitule || 'Titre du projet non disponible'}
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                readOnly
-              />
+              <div className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium">
+                {proposition.intitule || 'Titre du projet non disponible'}
+              </div>
             </div>
 
             <div>
@@ -314,7 +310,7 @@ const PropoResponsableEntrepriseDialog: React.FC<PropoResponsableEntrepriseDialo
           </div>
 
           {proposition.status === 'pending' && (
-           <div className="flex flex-col sm:flex-row gap-2 pt-6 justify-center">
+            <div className="flex flex-col sm:flex-row gap-2 pt-6 justify-center">
               <button
                 type="button"
                 onClick={() => handleActionClick('accept')}

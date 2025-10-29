@@ -50,4 +50,14 @@ class Enseignant extends Model
     {
         return $this->hasMany(Pfe::class, 'id_co_encadrant', 'id');
     }
+
+    public function signatures()
+    {
+        return $this->hasMany(Signature::class, 'user_id', 'id');
+    }
+
+    public function activeSignature()
+    {
+        return $this->hasOne(Signature::class, 'user_id', 'id')->where('is_active', true);
+    }
 }

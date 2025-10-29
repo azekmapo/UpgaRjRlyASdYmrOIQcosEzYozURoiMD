@@ -27,7 +27,7 @@ const CodeVerification: React.FC = () => {
     const [demare, setDemare] = useState(true);
     const [timeLeft, setTimeLeft] = useState(60);
 
-    const { handleSubmit, setValue, watch, formState: { errors } } = useForm<CodeFormData>({
+    const { handleSubmit, setValue, formState: { errors } } = useForm<CodeFormData>({
         resolver: zodResolver(codeSchema),
         defaultValues: { code: '' }
     });
@@ -202,7 +202,7 @@ const CodeVerification: React.FC = () => {
             {email && <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
 
                 <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-4xl w-full grid md:grid-cols-2 min-h-[600px]">
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center p-8 hidden md:flex">
+                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center p-8 md:flex">
                         <div className="text-center">
                             <img
                                 src="/code_verification.svg"
@@ -342,7 +342,7 @@ const CodeVerification: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={handleBackToLogin}
-                                        className="mt-2 text-sm font-semibold cursor-pointer text-gray-700 hover:underline cursor-pointer transition-all duration-200"
+                                        className="mt-2 text-sm font-semibold cursor-pointer text-gray-700 hover:underline transition-all duration-200"
                                     >
                                         ← Retour à la connexion
                                     </button>

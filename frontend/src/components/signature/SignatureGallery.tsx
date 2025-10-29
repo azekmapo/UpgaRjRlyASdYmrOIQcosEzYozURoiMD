@@ -1,4 +1,4 @@
-import { getSignatureImage } from "@/services/signature-service";
+import { getSignatureImageDirect } from "@/services/signature-service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -61,12 +61,26 @@ export default function SignatureGallery({
           }));
         } else {
           try {
-            const imageUrl = await getSignatureImage(signature.signature_data);
+            const imageUrl = await getSignatureImageDirect(signature.signature_data);
             imageCache.current[signature.signature_data] = imageUrl;
             setSignatureImages((prev) => ({
               ...prev,
               [signature.id]: imageUrl,
             }));
+
+            // Revoke blob URL after 24 hours to expire it
+            setTimeout(() => {
+              if (imageUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(imageUrl);
+                // Remove from cache and state
+                delete imageCache.current[signature.signature_data];
+                setSignatureImages((prev) => {
+                  const newState = { ...prev };
+                  delete newState[signature.id];
+                  return newState;
+                });
+              }
+            }, 24 * 60 * 60 * 1000); // 24 hours
           } catch (error) {
             console.error(
               `Error fetching image for signature ${signature.id}:`,

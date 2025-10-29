@@ -16,8 +16,7 @@ const getAllowedOrigins = () => {
     "http://localhost:5173", 
     "http://localhost:8000",
     "http://frontend:5173",
-    "http://backend:80",
-    "*"
+    "http://backend:80"
   ];
   
   const origins = process.env.ALLOWED_ORIGINS 

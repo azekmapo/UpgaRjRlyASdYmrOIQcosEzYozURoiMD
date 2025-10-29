@@ -228,34 +228,34 @@ const PropoResponsableEnseignantDialog: React.FC<PropoResponsableEnseignantDialo
                     </DialogHeader>
 
                     <div className="space-y-6 py-4">
+                        <div>
+                            <label htmlFor="encadrant" className="block text-sm font-semibold text-gray-700 mb-2">
+                                Encadreur
+                            </label>
+                            <input
+                                type="text"
+                                id="encadrant"
+                                value={proposition.encadrant?.name || ''}
+                                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
+                                readOnly
+                            />
+                        </div>
+
+                        {proposition.co_encadrant && (
                             <div>
-                                <label htmlFor="encadrant" className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Encadreur
+                                <label htmlFor="co_encadrant" className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Co-Encadreur
                                 </label>
                                 <input
                                     type="text"
-                                    id="encadrant"
-                                    value={proposition.encadrant?.name || ''}
+                                    id="co_encadrant"
+                                    value={proposition.co_encadrant?.name || 'Aucun'}
                                     className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
                                     readOnly
                                 />
                             </div>
+                        )}
 
-                            {proposition.co_encadrant && (
-                                <div>
-                                    <label htmlFor="co_encadrant" className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Co-Encadreur
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="co_encadrant"
-                                        value={proposition.co_encadrant?.name || 'Aucun'}
-                                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                                        readOnly
-                                    />
-                                </div>
-                            )}
-                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label htmlFor="option" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -288,13 +288,9 @@ const PropoResponsableEnseignantDialog: React.FC<PropoResponsableEnseignantDialo
                             <label htmlFor="intitule" className="block text-sm font-semibold text-gray-700 mb-2">
                                 L'intitulé du projet
                             </label>
-                            <input
-                                type="text"
-                                id="intitule"
-                                value={proposition.intitule || ''}
-                                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                                readOnly
-                            />
+                            <div className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium">
+                                {proposition.intitule || ''}
+                            </div>
                         </div>
 
                         <div>

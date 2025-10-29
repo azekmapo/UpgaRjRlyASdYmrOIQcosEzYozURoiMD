@@ -24,6 +24,7 @@ use App\Http\Controllers\ResponsableController;
 use App\Http\Controllers\NotationController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\SignatureController;
+use App\Http\Middleware\CheckRoleAndPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
@@ -136,48 +137,84 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::patch('/soutenances/{id}/time', [SoutenanceController::class, 'updateTime']);
     Route::delete('/soutenances/{id}', [SoutenanceController::class, 'destroy']);
 
-    Route::get('/etudiant/profile', [ProfileController::class, 'getProfileEtudiant']);
-    Route::get('/enseignant/profile', [ProfileController::class, 'getProfileEnseignant']);
-    Route::get('/entreprise/profile', [ProfileController::class, 'getProfileEntreprise']);
-    Route::get('/admin/profile', [ProfileController::class, 'getProfileAdmin']);
-    Route::patch('/profile/change-password', [ProfileController::class, 'changePassword']);
-    Route::post('/profile/upload-picture', [ProfileController::class, 'uploadProfilePicture']);
-    Route::delete('/profile/delete-picture', [ProfileController::class, 'deleteProfilePicture']);
+    Route::get('/etudiant/profile', [ProfileController::class, 'getProfileEtudiant'])
+    ->middleware(CheckRoleAndPeriod::class . ':etudiant,tout');
+    Route::get('/enseignant/profile', [ProfileController::class, 'getProfileEnseignant'])
+    ->middleware(CheckRoleAndPeriod::class . ':enseignant,tout');
+    Route::get('/entreprise/profile', [ProfileController::class, 'getProfileEntreprise'])
+    ->middleware(CheckRoleAndPeriod::class . ':entreprise,tout');
+    Route::get('/admin/profile', [ProfileController::class, 'getProfileAdmin'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::patch('/profile/change-password', [ProfileController::class, 'changePassword'])
+    ->middleware(CheckRoleAndPeriod::class . ':tout,tout');
+    Route::post('/profile/upload-picture', [ProfileController::class, 'uploadProfilePicture'])
+    ->middleware(CheckRoleAndPeriod::class . ':tout,tout');
+    Route::delete('/profile/delete-picture', [ProfileController::class, 'deleteProfilePicture'])
+    ->middleware(CheckRoleAndPeriod::class . ':tout,tout');
 
-    Route::get('/emails', [EnvoiEmailsController::class, 'goToListEmails']);
-    Route::delete('/suppAutomatisation/{automationId}', [EnvoiEmailsController::class, 'suppAutomatisation']);
-    Route::get('/envoi-emails', [EnvoiEmailsController::class, 'goToEnvoiEmails']);
-    Route::post('/envoiEmails', [EnvoiEmailsController::class, 'envoiEmails']);
+    Route::get('/emails', [EnvoiEmailsController::class, 'goToListEmails'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::delete('/suppAutomatisation/{automationId}', [EnvoiEmailsController::class, 'suppAutomatisation'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::get('/envoi-emails', [EnvoiEmailsController::class, 'goToEnvoiEmails'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/envoiEmails', [EnvoiEmailsController::class, 'envoiEmails'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
 
-    Route::get('/utilisateurs', [GetAllUsersController::class, 'index']);
-    Route::get('/utilisateurs/enseignants', [GetAllUsersController::class, 'getEnseignants']);
-    Route::get('/utilisateurs/entreprises', [GetAllUsersController::class, 'getEntreprises']);
-    Route::delete('/utilisateurs/{id}', [GetAllUsersController::class, 'destroy']);
-    Route::post('/addEtudiant', [ManageUsersController::class, 'addEtudiant']);
-    Route::post('/addEnseignant', [ManageUsersController::class, 'addEnseignant']);
-    Route::post('/addEntreprise', [ManageUsersController::class, 'addEntreprise']);
-    Route::patch('/updateEtudiant', [ManageUsersController::class, 'updateEtudiant']);
-    Route::patch('/updateEnseignant', [ManageUsersController::class, 'updateEnseignant']);
-    Route::patch('/updateEntreprise', [ManageUsersController::class, 'updateEntreprise']);
-    Route::post('/import-etudiants', [ImportController::class, 'importEtudiants']);
-    Route::post('/import-enseignants', [ImportController::class, 'importEnseignants']);
-    Route::post('/import-entreprises', [ImportController::class, 'importEntreprises']);
+    Route::get('/utilisateurs', [GetAllUsersController::class, 'index'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::get('/utilisateurs/enseignants', [GetAllUsersController::class, 'getEnseignants'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::get('/utilisateurs/entreprises', [GetAllUsersController::class, 'getEntreprises'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::delete('/utilisateurs/{id}', [GetAllUsersController::class, 'destroy'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/addEtudiant', [ManageUsersController::class, 'addEtudiant'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/addEnseignant', [ManageUsersController::class, 'addEnseignant'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/addEntreprise', [ManageUsersController::class, 'addEntreprise'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::patch('/updateEtudiant', [ManageUsersController::class, 'updateEtudiant'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::patch('/updateEnseignant', [ManageUsersController::class, 'updateEnseignant'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::patch('/updateEntreprise', [ManageUsersController::class, 'updateEntreprise'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/import-etudiants', [ImportController::class, 'importEtudiants'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/import-enseignants', [ImportController::class, 'importEnseignants'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::post('/import-entreprises', [ImportController::class, 'importEntreprises'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
 
-    Route::get('/propositions/etudiants', [ManagePropositionsController::class, 'getPropositionsEtudiants']);
-    Route::get('/propositions/enseignants', [ManagePropositionsController::class, 'getPropositionsEnseignants']);
-    Route::get('/propositions/entreprises', [ManagePropositionsController::class, 'getPropositionsEntreprises']);
-    Route::post('/propositions/etudiants/accept', [ManagePropositionsController::class, 'acceptPropositionEtudiant']);
-    Route::post('/propositions/etudiants/decline', [ManagePropositionsController::class, 'declinePropositionEtudiant']);
-    Route::post('/propositions/enseignants/accept', [ManagePropositionsController::class, 'acceptPropositionEnseignant']);
-    Route::post('/propositions/enseignants/decline', [ManagePropositionsController::class, 'declinePropositionEnseignant']);
-    Route::post('/propositions/entreprises/accept', [ManagePropositionsController::class, 'acceptPropositionEntreprise']);
-    Route::post('/propositions/entreprises/decline', [ManagePropositionsController::class, 'declinePropositionEntreprise']);
+    Route::get('/propositions/etudiants', [ManagePropositionsController::class, 'getPropositionsEtudiants'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::get('/propositions/enseignants', [ManagePropositionsController::class, 'getPropositionsEnseignants'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::get('/propositions/entreprises', [ManagePropositionsController::class, 'getPropositionsEntreprises'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::post('/propositions/etudiants/accept', [ManagePropositionsController::class, 'acceptPropositionEtudiant'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::post('/propositions/etudiants/decline', [ManagePropositionsController::class, 'declinePropositionEtudiant'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::post('/propositions/enseignants/accept', [ManagePropositionsController::class, 'acceptPropositionEnseignant'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::post('/propositions/enseignants/decline', [ManagePropositionsController::class, 'declinePropositionEnseignant'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::post('/propositions/entreprises/accept', [ManagePropositionsController::class, 'acceptPropositionEntreprise'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
+    Route::post('/propositions/entreprises/decline', [ManagePropositionsController::class, 'declinePropositionEntreprise'])
+    ->middleware(CheckRoleAndPeriod::class . ':responsable,3');
 
     Route::get('/jury', [JuryController::class, 'index']);
     Route::post('/jury/submit-choices', [JuryController::class, 'submitChoices']);
 
-    Route::get('/enseignants/responsable', [ResponsableController::class, 'getEnseignantsForResponsable']);
-    Route::patch('/enseignants/responsable', [ResponsableController::class, 'updateResponsable']);
+    Route::get('/enseignants/responsable', [ResponsableController::class, 'getEnseignantsForResponsable'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+    Route::patch('/enseignants/responsable', [ResponsableController::class, 'updateResponsable'])
+    ->middleware(CheckRoleAndPeriod::class . ':admin,tout');
+
     // Bareme management routes
     Route::post('/bareme', [NotationController::class, 'store']);
     Route::get('/bareme', [NotationController::class, 'getBaremeByRole']);
@@ -189,13 +226,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Periodes management
     Route::put('/periodes/{id}', [PeriodeController::class, 'update']);
-    Route::get('/dashboard/periode-active', [PeriodeController::class, 'getPeriodeActive']);
+
+    Route::get('/dashboard/periode-active', [PeriodeController::class, 'getPeriodeActive'])
+    ->middleware(CheckRoleAndPeriod::class . ':etudiant+enseignant+entreprise,tout');
     
     Route::prefix('signatures')->group(function () {
-        Route::get('/teacher/{teacherId}', [SignatureController::class, 'index']);
+        Route::get('/user/{userId}', [SignatureController::class, 'index']);
         Route::get('/image/{filename}', [SignatureController::class, 'getSignatureImage']);
-        Route::post('/create-signature/{teacherId}', [SignatureController::class, 'store']);
-        Route::post('/{teacherId}/activate/{signatureId}', [SignatureController::class, 'activate']);
+        Route::get('/image-direct/{filename}', [SignatureController::class, 'getSignatureImageDirect'])->where('filename', '.*');
+        Route::get('/serve/{filename}', [SignatureController::class, 'serveSignature'])->name('signatures.serve')->middleware('auth:sanctum');
+        Route::post('/create-signature/{userId}', [SignatureController::class, 'store']);
+        Route::post('/{userId}/activate/{signatureId}', [SignatureController::class, 'activate']);
         Route::put('/update-signature/{id}', [SignatureController::class, 'update']);
         Route::delete('/delete-signature/{id}', [SignatureController::class, 'destroy']);
     });
@@ -206,7 +247,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/options/{id}', [OptionController::class, 'update']);
     Route::delete('/options/{id}', [OptionController::class, 'destroy']);
 
-    Route::get('/email-validations/{id}', [NotificationController::class, 'getEmailValidation']);
-    Route::get('/email-automations/{id}', [NotificationController::class, 'getEmailAutomation']);
+    Route::get('/email-validations/{id}', [NotificationController::class, 'getEmailValidation'])
+    ->middleware(CheckRoleAndPeriod::class . ':etudiant+enseignant+entreprise,4');
+    Route::get('/email-automations/{id}', [NotificationController::class, 'getEmailAutomation'])
+    ->middleware(CheckRoleAndPeriod::class . ':etudiant+enseignant+entreprise,tout');
 
 });

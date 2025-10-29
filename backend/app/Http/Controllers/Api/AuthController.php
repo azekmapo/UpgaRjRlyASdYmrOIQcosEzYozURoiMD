@@ -87,6 +87,13 @@ class AuthController extends Controller
             // Create Sanctum authentication token
             $token = $user->createToken('auth-token')->plainTextToken;
 
+            $user->load('enseignant');
+
+            $isResponsable = false;
+            if ($user->role === 'enseignant' && $user->enseignant) {
+                $isResponsable = $user->enseignant->is_responsable ?? false;
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Connexion réussie',
@@ -98,7 +105,7 @@ class AuthController extends Controller
                     'role' => $user->role,
                     'email_verified_at' => $user->email_verified_at?->toISOString(),
                     'profile_picture' => $user->profile_picture,
-                    'is_responsable' => $user->is_responsable ?? false,
+                    'is_responsable' => $isResponsable,
                     'created_at' => $user->created_at->toISOString(),
                     'updated_at' => $user->updated_at->toISOString(),
                 ],

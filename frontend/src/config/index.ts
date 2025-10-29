@@ -188,7 +188,7 @@ export const appRoutes: Routes = {
     {
       path: '/signature',
       component: Signature,
-      roles: ['enseignant'],
+      roles: ['admin','enseignant'],
     },
     {
       path: '/sessions-admin',

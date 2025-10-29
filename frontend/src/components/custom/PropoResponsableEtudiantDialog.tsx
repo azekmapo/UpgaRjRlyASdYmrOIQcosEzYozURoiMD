@@ -222,35 +222,35 @@ const PropoResponsableEtudiantDialog: React.FC<PropoResponsableEtudiantDialogPro
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            
+
+            <div>
+              <label htmlFor="etudiant1" className="block text-sm font-semibold text-gray-700 mb-2">
+                Étudiant n°1
+              </label>
+              <input
+                type="text"
+                id="etudiant1"
+                value={proposition.group?.student1?.user?.name || ''}
+                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
+                readOnly
+              />
+            </div>
+
+            {proposition.group?.student2 && (
               <div>
-                <label htmlFor="etudiant1" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Étudiant n°1
+                <label htmlFor="etudiant2" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Étudiant n°2
                 </label>
                 <input
                   type="text"
-                  id="etudiant1"
-                  value={proposition.group?.student1?.user?.name || ''}
+                  id="etudiant2"
+                  value={proposition.group?.student2?.user?.name || ''}
                   className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
                   readOnly
                 />
               </div>
+            )}
 
-              {proposition.group?.student2 && (
-                <div>
-                  <label htmlFor="etudiant2" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Étudiant n°2
-                  </label>
-                  <input
-                    type="text"
-                    id="etudiant2"
-                    value={proposition.group?.student2?.user?.name || ''}
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                    readOnly
-                  />
-                </div>
-              )}
-            
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -284,13 +284,9 @@ const PropoResponsableEtudiantDialog: React.FC<PropoResponsableEtudiantDialogPro
               <label htmlFor="intitule" className="block text-sm font-semibold text-gray-700 mb-2">
                 L'intitulé du projet
               </label>
-              <input
-                type="text"
-                id="intitule"
-                value={proposition.intitule}
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:bg-white transition-all duration-200"
-                readOnly
-              />
+              <div className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-medium">
+                {proposition.intitule}
+              </div>
             </div>
 
             <div>

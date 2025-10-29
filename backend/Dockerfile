@@ -76,10 +76,12 @@ COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy composer files for dependency installation
-COPY composer.json composer.lock ./
+COPY composer.json composer.loc[k] ./
 
 # Install PHP dependencies (without dev dependencies for production)
-RUN composer install --no-scripts --no-autoloader --prefer-dist --optimize-autoloader
+# Use update if lock file is missing or outdated
+RUN composer update --no-scripts --no-autoloader --prefer-dist --optimize-autoloader --no-dev || \
+    composer install --no-scripts --no-autoloader --prefer-dist --optimize-autoloader
 
 # Copy existing application directory contents
 COPY . .

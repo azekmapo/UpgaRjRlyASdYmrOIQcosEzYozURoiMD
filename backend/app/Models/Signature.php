@@ -11,7 +11,7 @@ class Signature extends Model
 
     protected $fillable = [
         'id',
-        'enseignant_id',
+        'user_id',
         'signature_data',
         'is_active',
         'created_at',
@@ -22,8 +22,5 @@ class Signature extends Model
         'is_active' => 'boolean',
     ];
 
-    public function teacher()
-    {
-        return $this->belongsTo(Enseignant::class);
-    }
+  
 }

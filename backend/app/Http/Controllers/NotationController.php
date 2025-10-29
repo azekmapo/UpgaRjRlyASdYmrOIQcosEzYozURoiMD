@@ -8,8 +8,10 @@ use App\Models\Bareme;
 use App\Models\DistributionStatus;
 use App\Models\Enseignant;
 use App\Models\Note;
+use App\Models\Option;
 use App\Models\Periode;
 use App\Models\Pfe;
+use App\Models\Signature;
 use App\Models\Soutenance;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -66,8 +68,8 @@ class NotationController extends Controller
                 return response()->json(['error' => 'Aucun PV trouvé'], 404);
             }
 
-            $files = glob($pvDirectory . '/*.docx');
-            Log::info('Found ' . count($files) . ' DOCX files');
+            $files = glob($pvDirectory . '/*.pdf');
+            Log::info('Found ' . count($files) . ' PDF files');
             Log::info('Files found: ' . implode(', ', array_map('basename', $files)));
 
             if (empty($files)) {
@@ -880,19 +882,114 @@ class NotationController extends Controller
             $table->addCell(1500)->addText('Mention', $boldStyle);
             $table->addCell(1500)->addText($this->getMention($note->note_generale));
 
-            // Add placeholders for signatures
+            // Add signatures section
             $section->addTextBreak(2);
             $signatureTable = $section->addTable(['alignment' => 'center', 'width' => 100 * 50, 'unit' => 'pct']);
             $signatureTable->addRow();
-            $signatureTable->addCell(5000)->addText('Signature du Président', $boldStyle, ['alignment' => 'left']);
-            $signatureTable->addCell(5000)->addText('Signature du Chef de Département', $boldStyle, ['alignment' => 'right']);
+            
+            // Signature du Président
+            $cellPresident = $signatureTable->addCell(5000);
+            $cellPresident->addText('Signature du Président', $boldStyle, ['alignment' => 'left']);
+            
+            try {
+                if ($pfe->jury && $pfe->jury->id_president) {
+                    $presidentSignature = Signature::where('user_id', $pfe->jury->id_president)
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($presidentSignature && $presidentSignature->signature_data) {
+                        // Get signature content from private storage
+                        $imageContent = Storage::disk('private')->get($presidentSignature->signature_data);
+                        
+                        if ($imageContent) {
+                            $tempImagePath = sys_get_temp_dir() . '/president_sig_' . uniqid() . '.png';
+                            file_put_contents($tempImagePath, $imageContent);
+                            
+                            $cellPresident->addImage(
+                                $tempImagePath,
+                                [
+                                    'width' => 100,
+                                    'height' => 50,
+                                    'alignment' => 'left'
+                                ]
+                            );
+                            
+                            // Clean up temp file
+                            @unlink($tempImagePath);
+                            
+                            Log::info("Signature du président ajoutée au PV");
+                        } else {
+                            Log::warning("Impossible de récupérer la signature du président");
+                        }
+                    } else {
+                        Log::info("Aucune signature active trouvée pour le président");
+                    }
+                } else {
+                    Log::info("Jury ou président non trouvé pour le PFE");
+                }
+            } catch (\Exception $e) {
+                Log::error("Erreur lors de l'ajout de la signature du président: " . $e->getMessage());
+            }
+            
+            // Signature du Chef de Département (Responsable)
+            $cellResponsable = $signatureTable->addCell(5000);
+            $cellResponsable->addText('Signature du Chef de Département', $boldStyle, ['alignment' => 'right']);
+            
+            try {
+                $option = Option::where('nom', $pfe->option)->first();
+                
+                if ($option && $option->id_responsable) {
+                    $activeSignature = Signature::where('user_id', $option->id_responsable)
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($activeSignature && $activeSignature->signature_data) {
+                        // Get signature content from private storage
+                        $imageContent = Storage::disk('private')->get($activeSignature->signature_data);
+                        
+                        if ($imageContent) {
+                            $tempImagePath = sys_get_temp_dir() . '/responsable_sig_' . uniqid() . '.png';
+                            file_put_contents($tempImagePath, $imageContent);
+                            
+                            $cellResponsable->addImage(
+                                $tempImagePath,
+                                [
+                                    'width' => 100,
+                                    'height' => 50,
+                                    'alignment' => 'right'
+                                ]
+                            );
+                            
+                            // Clean up temp file
+                            @unlink($tempImagePath);
+                            
+                            Log::info("Signature du responsable ajoutée au PV pour l'option: {$pfe->option}");
+                        } else {
+                            Log::warning("Impossible de récupérer la signature du responsable");
+                        }
+                    } else {
+                        Log::info("Aucune signature active trouvée pour le responsable de l'option: {$pfe->option}");
+                    }
+                } else {
+                    Log::info("Option ou responsable non trouvé pour: {$pfe->option}");
+                }
+            } catch (\Exception $e) {
+                Log::error("Erreur lors de l'ajout de la signature du responsable: " . $e->getMessage());
+            }
 
             // Generate unique filename
-            $filename = 'PV_' . str_replace(' ', '_', $pfe->intitule) . '_' . date('Y-m-d') . '.docx';
+            $filename = 'PV_' . str_replace(' ', '_', $pfe->intitule) . '_' . date('Y-m-d') . '.pdf';
 
-            // Save to private storage
-            $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-            $objWriter->save(storage_path('app/private/pvs/' . $filename));
+            // Save to private storage as PDF
+            $pdfPath = storage_path('app/private/pvs/' . $filename);
+            
+            // Set PDF renderer
+            \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
+            \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
+            
+            // Create PDF writer and save
+            $pdfWriter = IOFactory::createWriter($phpWord, 'PDF');
+            $pdfWriter->save($pdfPath);
 
             Log::info("PV généré avec succès: {$filename}");
             return $filename;

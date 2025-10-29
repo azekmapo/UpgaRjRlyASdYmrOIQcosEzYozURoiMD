@@ -66,6 +66,9 @@ class ProfileController extends Controller
                 ], 404);
             }
 
+            // Check if teacher is a jury president
+            $isJuryPresident = \App\Models\Jury::where('id_president', $user->id)->exists();
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -75,6 +78,7 @@ class ProfileController extends Controller
                     'grade' => $enseignant->grade,
                     'date_recrutement' => $enseignant->date_recrutement,
                     'is_responsable' => $enseignant->is_responsable,
+                    'is_jury_president' => $isJuryPresident,
                     'email' => $user->email,
                 ]
             ]);

@@ -7,11 +7,13 @@ import { LogOut } from "lucide-react"
 import logo from "/logo.svg"
 import hat from "/hat.svg"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { usePeriodeFilter } from "@/hooks/usePeriodeFilter"
 
 export function AppSidebar({ isCollapsed }: { isCollapsed: boolean }) {
   const { user, logout } = useAuth()
-  const navigation = getNavigationByRole(user?.role, user?.is_responsable)
+  const navigation = getNavigationByRole(user?.role, user?.is_responsable, user?.is_jury_president)
   const isMobile = useIsMobile()
+  const { isVisible } = usePeriodeFilter()
 
   const handleLogout = async () => {
     try {
@@ -45,7 +47,7 @@ export function AppSidebar({ isCollapsed }: { isCollapsed: boolean }) {
 
       {/* Navigation Links - consistent positioning */}
       <div className="px-4 space-y-2 overflow-y-auto">
-        {navigation.main.map((item) => (
+        {navigation.main.filter(item => isVisible(item.periodes)).map((item) => (
           <NavLink
             key={item.title}
             to={item.href}
@@ -79,7 +81,7 @@ export function AppSidebar({ isCollapsed }: { isCollapsed: boolean }) {
         ))}
 
         {navigation.secondary &&
-          navigation.secondary.map((item) => (
+          navigation.secondary.filter(item => isVisible(item.periodes)).map((item) => (
             <NavLink
               key={item.title}
               to={item.href}
